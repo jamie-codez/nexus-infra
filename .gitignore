@@ -1,5 +1,10 @@
 .idea
-docker
+docker/*
+!docker/
+!docker/caddy/*
+!docker/caddy/public/*
+!docker/caddy/Caddyfile
 !docker/docker-compose.yaml
+!docker/*.env
 !docker/start.sh
 !docker/stop.sh
