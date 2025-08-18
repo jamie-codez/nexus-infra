@@ -149,54 +149,6 @@ services:
     networks:
       - nexus
 
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
-    restart: unless-stopped
-    env_file:
-      - .env
-    ports:
-      - ${OLLAMA_PORT}:${OLLAMA_PORT}
-    environment:
-      OLLAMA_PORT: ${OLLAMA_PORT}
-      OLLAMA_HOST: ${OLLAMA_HOST}
-#      OLLAMA_MAX_NEW_TOKENS_PER_REQUEST: ${OLLAMA_MAX_NEW_TOKENS_PER_REQUEST}
-#      OLLAMA_MAX_TOTAL_TOKENS: ${OLLAMA_MAX_TOTAL_TOKENS}
-#      OLLAMA_MAX_PROMPT_TOKENS: ${OLLAMA_MAX_PROMPT_TOKENS}
-#      OLLAMA_MAX_RESPONSE_TOKENS: ${OLLAMA_MAX_RESPONSE_TOKENS}
-      OLLAMA_MAX_LOADED_MODELS: ${OLLAMA_MAX_LOADED_MODELS}
-      OLLAMA_NUM_PARALLEL: ${OLLAMA_NUM_PARALLEL}
-      OLLAMA_MODEL_PATH: /root/.ollama
-    volumes:
-      - ./ollama/data:/root/.ollama
-    deploy:
-      resources:
-        reservations:
-          memory: 2G
-          cpus: "1.0"
-        limits:
-          cpus: "1.0"
-          memory: 8G
-    networks:
-      - nexus
-
-  open-webui:
-    container_name: open-webui
-    image: ghcr.io/open-webui/open-webui:main
-    restart: unless-stopped
-    env_file:
-      - .env
-    ports:
-      - ${OPENWEBUI_PORT}
-    environment:
-       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL}
-    volumes:
-      - ./openwebui/data:/app/backend/data
-    depends_on:
-      - ollama
-    networks:
-      - nexus
-
   ftp:
     container_name: ftp
     image: stilliard/pure-ftpd:latest
@@ -413,8 +365,6 @@ volumes:
   mongo:
   mongo-express:
   redis:
-  ollama:
-  openwebui:
   n8n:
   n8n_data:
   rabbitmq:
