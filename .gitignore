@@ -1,0 +1,4 @@
+docker
+!docker/docker-compose.yaml
+!docker/start.sh
+!docker/stop.sh
