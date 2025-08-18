@@ -1,3 +1,4 @@
+.idea
 docker
 !docker/docker-compose.yaml
 !docker/start.sh
