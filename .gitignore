@@ -1,8 +1,7 @@
 .idea
 docker/*
 !docker/
-!docker/caddy/*
-!docker/caddy/public/*
+!docker/caddy/public/
 !docker/caddy/Caddyfile
 !docker/docker-compose.yaml
 !docker/*.env
