@@ -7,3 +7,6 @@ docker/*
 !docker/*.env
 !docker/start.sh
 !docker/stop.sh
+
+sftpgo/.env.expl
+sftpgo/.env
