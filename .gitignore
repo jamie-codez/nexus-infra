@@ -4,6 +4,7 @@ docker/*
 !docker/caddy/public/
 !docker/caddy/Caddyfile
 !docker/docker-compose.yaml
+!docker/wallet-compose.yaml
 !docker/*.env
 !docker/start.sh
 !docker/stop.sh
