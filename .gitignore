@@ -10,6 +10,8 @@ docker/*
 !docker/stop.sh
 sftpgo/.env.expl
 sftpgo/.env
+docker/.env
+docker/.wallet.env
 **/.env
 ./sftpgo/.env
 ./sftpgo/.env.expl
