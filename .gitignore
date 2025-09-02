@@ -12,3 +12,4 @@ sftpgo/.env.expl
 sftpgo/.env
 **/.env
 ./sftpgo/.env
+./sftpgo/.env.expl
