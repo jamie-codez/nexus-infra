@@ -1,0 +1,55 @@
+---
+services:
+  caddy:
+    container_name: caddy
+    build:
+      context: .
+      dockerfile: caddy/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - ${HTTP_PORT}:${HTTP_PORT}
+      - ${HTTPS_PORT}:${HTTPS_PORT}
+      - ${HTTP_PROXY_PORT}:${HTTP_PROXY_PORT}/udp
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/certs:/var/lib/caddy/.local/share/caddy
+      - ./caddy/data:/data
+      - ./caddy/logs:/var/log/caddy
+      - ./caddy/public:/usr/share/caddy/html
+    networks:
+      - file-manager
+
+  sftpgo:
+    container_name: sftpgo
+    image: drakkan/sftpgo:latest
+    restart: unless-stopped
+    user: "root"
+    env_file:
+      - .env
+    ports:
+      - ${SFTPGO_WEBDAV_PORT}
+      - ${SFTPGO_FTP_PORT}:${SFTPGO_FTP_PORT}
+      - ${SFTPGO_SFTP_PORT}:${SFTPGO_SFTP_PORT}
+      - ${SFTPGO_FTPES_PORT}:${SFTPGO_FTPES_PORT}
+      - ${SFTPGO_WEB_PORT}:${SFTPGO_WEB_PORT}
+      - ${SFTPGO_FTPD_PASSIVE_PORTS}:${SFTPGO_FTPD_PASSIVE_PORTS}
+    volumes:
+      - ./sftpgo/data:/srv/sftpgo
+      - ./sftpgo/logs:/sftpgo/logs
+      - ./sftpgo/config:/var/lib/sftpgo
+    depends_on:
+      - caddy
+    networks:
+      - file-manager
+
+networks:
+  file-manager:
+    driver: bridge
+
+volumes:
+  caddy:
+  sftpgo:
+  sftpgo_data:
+  .certs:
