@@ -7,12 +7,12 @@ services:
     env_file:
       - .env
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - PGDATA=/var/lib/postgresql/data/pgdata
-      - POSTGRES_HOST_AUTH_METHOD=trust
-      - POSTGRES_INITDB_ARGS=--data-checksums
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_INITDB_ARGS: "--data-checksums"
     volumes:
       - ./postgres/data:/var/lib/postgresql/data
       - ./postgres/logs:/var/log/postgresql
@@ -49,15 +49,21 @@ services:
     ports:
       - ${MYSQL_PORT}:${MYSQL_PORT}
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+       MYSQL_DATABASE: ${MYSQL_DATABASE}
+       MYSQL_USER: ${MYSQL_USER}
+       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - ./mysql/data:/var/lib/mysql
       - ./mysql/logs:/var/log/mysql
     networks:
       - nexus
+      - database
+    healthcheck:
+      test: echo 'SELECT 1' | mysql -h localhost -P ${MYSQL_PORT} -u ${MYSQL_USER} -p${MYSQL_PASSWORD} || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   mongodb:
     container_name: mongodb
@@ -66,9 +72,9 @@ services:
     env_file:
       - .env
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+       MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
     volumes:
       - ./mongo/data:/data/db
     ports:
@@ -113,10 +119,10 @@ services:
     ports:
       - ${REDIS_COMMANDER_PORT}
     environment:
-      - PORT=${REDIS_COMMANDER_PORT}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+       PORT: ${REDIS_COMMANDER_PORT}
+       REDIS_HOST: ${REDIS_HOST}
+       REDIS_PORT: ${REDIS_PORT}
+       REDIS_PASSWORD: ${REDIS_PASSWORD}
     depends_on:
       - redis
       - caddy
@@ -172,3 +178,11 @@ volumes:
   redis:
     name: redis
     driver: local
+
+networks:
+  nexus:
+    name: nexus
+    driver: bridge
+  database:
+    name: database
+    driver: bridge

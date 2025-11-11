@@ -7,9 +7,9 @@ services:
     env_file:
       - .env
     ports:
-      - ${HTTP_PORT}:${HTTP_PORT}
-      - ${HTTPS_PORT}:${HTTPS_PORT}
-      - ${HTTP_PROXY_PORT}:${HTTP_PROXY_PORT}/udp
+      - ${CADDY_HTTP_PORT}:${CADDY_HTTP_PORT}
+      - ${CADDY_HTTPS_PORT}:${CADDY_HTTPS_PORT}
+      - ${CADDY_HTTP_PROXY_PORT}:${CADDY_HTTP_PROXY_PORT}/udp
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
       - ./caddy/certs:/etc/caddy/certs
@@ -42,6 +42,7 @@ include:
 
 networks:
   nexus:
+    name: nexus
     driver: bridge
 
 volumes:

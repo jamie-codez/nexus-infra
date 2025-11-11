@@ -16,5 +16,3 @@ docker/*
 !./docker/start.sh
 !./docker/stop.sh
 **/.env
-./sftpgo/.env
-./sftpgo/.env.expl

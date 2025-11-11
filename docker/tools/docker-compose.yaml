@@ -68,11 +68,9 @@ services:
 volumes:
   it-tools:
     name: it-tools
-    external: true
     driver: local
   n8n:
     name: n8n_data
-    external: true
     driver: local
 
 networks:
