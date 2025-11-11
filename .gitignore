@@ -5,7 +5,15 @@ docker/*
 !docker/caddy/Caddyfile
 !docker/docker-compose.yaml
 !docker/wallet-compose.yaml
-!docker/*.env
+!docker/databases/docker-compose.yaml
+!docker/mail/docker-compose.yaml
+!docker/media/docker-compose.yaml
+!docker/queues/docker-compose.yaml
+!docker/servers/docker-compose.yaml
+!docker/tools/docker-compose.yaml
+!docker/monitoring/docker-compose.yaml
+!docker/*.env.example
+!docker/**/.env.example
 !docker/start.sh
 !docker/stop.sh
 sftpgo/.env.expl
