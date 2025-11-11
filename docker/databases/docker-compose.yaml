@@ -1,0 +1,174 @@
+---
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_INITDB_ARGS=--data-checksums
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+      - ./postgres/logs:/var/log/postgresql
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    networks:
+      - nexus
+      - database
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - ${PGADMIN_LISTEN_PORT}
+    volumes:
+      - ./pgadmin/data:/var/lib/pgadmin
+      - ./pgadmin/logs:/var/log/pgadmin
+    depends_on:
+      - postgres
+      - caddy
+    networks:
+      - nexus
+      - database
+
+  mysql:
+    container_name: mysql
+    image: mysql:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - ${MYSQL_PORT}:${MYSQL_PORT}
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/logs:/var/log/mysql
+    networks:
+      - nexus
+
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+    volumes:
+      - ./mongo/data:/data/db
+    ports:
+      - ${MONGO_PORT}:${MONGO_PORT}
+    networks:
+      - nexus
+      - database
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  mongo-express:
+    container_name: mongo-express
+    image: mongo-express:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - ${MONGO_EXPRESS_PORT}
+    depends_on:
+      - mongodb
+      - caddy
+    volumes:
+      - ./express/data:/data
+    networks:
+      - nexus
+      - database
+    healthcheck:
+      test: curl --fail -s http://localhost:${MONGO_EXPRESS_PORT} || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  redis-commander:
+    container_name: redis-commander
+    image: rediscommander/redis-commander:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - ${REDIS_COMMANDER_PORT}
+    environment:
+      - PORT=${REDIS_COMMANDER_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    depends_on:
+      - redis
+      - caddy
+    volumes:
+      - ./commander/data:/data
+    networks:
+      - nexus
+      - database
+    healthcheck:
+      test: curl --fail -s http://localhost:${REDIS_COMMANDER_PORT} || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    volumes:
+      - ./redis/data:/data
+    networks:
+      - nexus
+      - database
+    healthcheck:
+      test: echo 'ping' | redis-cli -h localhost -p ${REDIS_PORT} || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  postgres:
+    name: postgres
+    driver: local
+  pgadmin:
+    name: pgadmin
+    driver: local
+  mysql:
+    name: mysql
+    driver: local
+  mongo:
+    name: mongo
+    driver: local
+  express:
+    name: express
+    driver: local
+  commander:
+    name: commander
+    driver: local
+  redis:
+    name: redis
+    driver: local

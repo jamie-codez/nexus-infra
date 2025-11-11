@@ -1,0 +1,84 @@
+---
+services:
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer/data:/data
+      - ./portainer/logs:/var/log/portainer
+      - ./portainer/certs:/certs
+    ports:
+      - ${PORTAINER_PORT}
+      - ${PORTAINER_TCP_PORT}/tcp
+    depends_on:
+      - caddy
+    networks:
+      - nexus
+      - tools
+
+  it-tools:
+    container_name: it-tools
+    image: corentinth/it-tools:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - ${IT_TOOLS_PORT}
+    volumes:
+      - ./it-tools/data:/data
+    networks:
+      - nexus
+      - tools
+
+  n8n:
+    container_name: n8n
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DB_TYPE=${N8N_DB_TYPE}
+      - DB_POSTGRESDB_HOST=${N8N_DB_HOST}
+      - DB_POSTGRESDB_PORT=${N8N_DB_PORT}
+      - DB_POSTGRESDB_DATABASE=${N8N_DB}
+      - DB_POSTGRESDB_USER=${N8N_DB_USER}
+      - DB_POSTGRESDB_PASSWORD=${N8N_DB_PASSWORD}
+    ports:
+      - ${N8N_PORT}
+    command: [ "start" ]
+    links:
+      - postgres
+    volumes:
+      - ./n8n/data:/home/node/.n8n
+      - ./n8n/flows:/files
+      - ./n8n/logs:/var/log/n8n
+    depends_on:
+      - postgres
+      - caddy
+    networks:
+      - nexus
+      - tools
+
+
+volumes:
+  it-tools:
+    name: it-tools
+    external: true
+    driver: local
+  n8n:
+    name: n8n_data
+    external: true
+    driver: local
+
+networks:
+  tools:
+    name: tools
+    driver: bridge
+  nexus:
+    name: nexus
+    external: true

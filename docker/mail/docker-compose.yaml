@@ -1,0 +1,57 @@
+---
+services:
+  stalwart:
+    container_name: stalwart
+    image: stalwartlabs/stalwart:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "995:995"
+      - "110:110"
+      - "4190:4190"
+      - "993:993"
+      - "143:143"
+      - "465:465"
+      - "587:587"
+      - "25:25"
+      - ${STALWART_PORT}
+    volumes:
+      - ./stalwart/data:/opt/stalwart/data
+      - ./stalwart/logs:/opt/stalwart/logs
+      - ./stalwart/config:/opt/stalwart/etc
+    depends_on:
+      - caddy
+    networks:
+      - nexus
+
+  mailhog:
+    container_name: mailhog
+    image: mailhog/mailhog:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - ${MAILHOG_PORT}:${MAILHOG_PORT}
+      - ${MAILHOG_HTTP_PORT}
+    volumes:
+      - ./mail/dir:/maildir
+      - ./mail/data:/data
+    depends_on:
+      - caddy
+    networks:
+      - nexus
+
+volumes:
+  stalwart:
+    name: stalwart
+    external: true
+    driver: local
+  mailhog:
+    name: mailhog
+    external: true
+    driver: local
+
+networks:
+  nexus:
+    external: true

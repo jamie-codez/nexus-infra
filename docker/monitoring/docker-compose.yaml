@@ -1,0 +1,19 @@
+---
+services:
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - ${PROMETHEUS_PORT}:${PROMETHEUS_PORT}
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - nexus
+    healthcheck:
+      test: curl --fail -s http://localhost:${PROMETHEUS_PORT} || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 5
