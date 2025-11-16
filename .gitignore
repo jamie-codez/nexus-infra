@@ -15,7 +15,10 @@ docker/*
 !./docker/**/.env.example
 !./docker/start.sh
 !./docker/stop.sh
+local/*
+!local/
 !./local/caddy/Caddyfile
+!./local/databases/express/ssl/*
 !./local/docker-compose.yaml
 !./**/.env.exaample
 **/.env
