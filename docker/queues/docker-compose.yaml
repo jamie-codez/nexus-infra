@@ -15,6 +15,11 @@ services:
     networks:
       - nexus
       - queues
+    healthcheck:
+      test: curl --fail -s http://localhost:${RABBITMQ_MANAGEMENT_PORT}/api/health || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
 volumes:
   rabbitmq:

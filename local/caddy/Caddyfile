@@ -1,0 +1,46 @@
+*.nexus.localhost {
+    @pgadmin host pgadmin.nexus.localhost
+    handle @pgadmin {
+        reverse_proxy http://pgadmin:5050
+    }
+
+    @mongo-express host mongo-express.nexus.localhost
+    handle @mongo-express {
+        reverse_proxy http://mongo-express:8081
+    }
+
+    @portainer host portainer.nexus.localhost
+    handle @portainer {
+        reverse_proxy https://portainer:9443 {
+            transport http {
+                tls
+                tls_insecure_skip_verify
+            }
+        }
+    }
+}
+
+#:8009 {
+#    reverse_proxy 10.0.0.1:8080 10.0.0.2:8080 10.0.0.3:8080 {
+#        lb_policy least_conn
+#        health_uri /health
+#        health_interval 5s
+#    }
+#}
+
+#:8010 {
+#
+#    reverse_proxy 10.0.0.1:8080 10.0.0.2:8080 10.0.0.3:8080 {
+#        lb_policy round_robin
+#        health_uri /health
+#        health_interval 5s
+#    }
+#}
+
+#8011 {
+#    reverse_proxy 10.0.0.1:8080 10.0.0.2:8080 10.0.0.3:8080 {
+#        lb_policy random
+#        health_uri /health
+#        health_interval 5s
+#    }
+#}

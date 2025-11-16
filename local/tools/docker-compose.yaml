@@ -1,0 +1,30 @@
+---
+services:
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer/data:/data
+    ports:
+      - ${PORTAINER_HTTPS_PORT}
+      - ${PORTAINER_HTTP_PORT}
+    depends_on:
+      - caddy
+    networks:
+      - nexus
+      - tools
+
+volumes:
+  portainer:
+    name: portainer
+    external: true
+
+networks:
+  tools:
+    name: tools
+    driver: bridge

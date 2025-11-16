@@ -1,0 +1,51 @@
+---
+services:
+  caddy:
+    container_name: caddy
+    image: caddy:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - ${CADDY_HTTP_PORT}:${CADDY_HTTP_PORT}
+      - ${CADDY_HTTPS_PORT}:${CADDY_HTTPS_PORT}
+      - ${CADDY_HTTP_PROXY_PORT}:${CADDY_HTTP_PROXY_PORT}/udp
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/certs:/etc/caddy/certs
+      - ./caddy/data:/data
+      - ./caddy/logs:/var/log/caddy
+      - ./caddy/public:/usr/share/caddy/html
+    networks:
+      - nexus
+
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /Users/${USER}/.docker/config.json:/config.json
+#      - /home/${USER}/.docker/config.json:/config.json # Uncomment for linux systems
+    command: --interval 300
+    networks:
+      - nexus
+
+networks:
+  nexus:
+    name: nexus
+    driver: bridge
+
+volumes:
+  caddy:
+    name: caddy
+    driver: local
+  watchtower:
+    name: watchtower
+    driver: local
+
+include:
+  - ./databases/docker-compose.yaml
+  - ./tools/docker-compose.yaml
