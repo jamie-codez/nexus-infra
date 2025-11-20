@@ -18,6 +18,16 @@
             }
         }
     }
+
+    @phpmyadmin host phpmyadmin.nexus.localhost
+    handle @phpmyadmin {
+        reverse_proxy http://phpmyadmin
+    }
+
+    @mailhog host mailhog.nexus.localhost
+    handle @mailhog {
+        reverse_proxy http://mailhog:8025
+    }
 }
 
 #:8009 {

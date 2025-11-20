@@ -40,10 +40,17 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
       PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
 #      PGADMIN_SERVER_JSON_FILE: /pgadmin4n4/servers.json
-      PGADMIN_DISABLE_POSTFIX: 'False'
-      PGADMIN_CONFIG_SERVER_MODE: 'True'
-      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
-      PGADMIN_ENABLE_SESSION_EXPIRY: 'True'
+      PGADMIN_DISABLE_POSTFIX: "False"
+      PGADMIN_CONFIG_SERVER_MODE: "True"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      PGADMIN_ENABLE_SESSION_EXPIRY: "True"
+#      PGADMIN_CONFIG_MAIL_SERVER: "smtp.resend.com"
+#      PGADMIN_CONFIG_MAIL_PORT: "587"
+#      PGADMIN_CONFIG_MAIL_USE_TLS: "True"
+#      PGADMIN_CONFIG_MAIL_USE_SSL: "False"
+#      PGADMIN_CONFIG_MAIL_USERNAME: "resend"
+#      PGADMIN_CONFIG_MAIL_PASSWORD: ""
+#      PGADMIN_CONFIG_MAIL_SENDER: ""
     volumes:
       - ./pgadmin/data:/var/lib/pgadmin
     depends_on:
@@ -52,6 +59,7 @@ services:
     networks:
       - nexus
       - database
+      - default
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:${PGADMIN_LISTEN_PORT}/misc/ping"]
       interval: 10s
@@ -82,6 +90,37 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
+
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - ${PHPMYADMIN_PORT}
+    entrypoint: /bin/sh -c "apt-get update && apt-get install -y curl && exec /docker-entrypoint.sh apache2-foreground"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+      UPLOAD_LIMIT: 1024M
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    depends_on:
+      - mysql
+      - caddy
+    volumes:
+      - ./phpmyadmin/config:/etc/phpmyadmin/config.user.inc.php
+      - ./phpmyadmin/sessions:/sessions
+    networks:
+      - nexus
+      - database
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80 || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   mongodb:
     container_name: mongodb
@@ -209,6 +248,9 @@ volumes:
     driver: local
   mysql:
     name: mysql
+    driver: local
+  phpmyadmin:
+    name: phpmyadmin
     driver: local
   mongo:
     name: mongo

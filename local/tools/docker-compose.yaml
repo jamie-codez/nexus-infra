@@ -19,6 +19,24 @@ services:
       - nexus
       - tools
 
+  mailhog:
+    container_name: mailhog
+    image: mailhog/mailhog:latest
+    restart: unless-stopped
+    platform: linux/amd64
+    ports:
+      - ${MAILHOG_SMTP_PORT}:1025
+      - ${MAILHOG_WEB_PORT}
+    volumes:
+      - ./mailhog/data:/maildir
+      - ./mailhog/config:/config
+      - ./mailhog/logs:/logs
+    depends_on:
+      - caddy
+    networks:
+      - nexus
+      - tools
+
 volumes:
   portainer:
     name: portainer
